@@ -12,6 +12,9 @@ def WHfact(A,d):
     H = Sd@Vtd
     return W, H
 
+def orthproj(W,b):
+    return W@(W.T@b)
+
 #Testvektorar oppgåve 1
 A1 = np.array([[1000,1],
                [0, 1],
@@ -22,8 +25,9 @@ A2 = np.array([[1,0,0],
 b1 = np.array([2,1,0],dtype=float)
 b2 = np.array([0,0,1],dtype=float)
 b3 = np.array([0,1,0],dtype=float)
-B = np.vstack((b1,b2,b3))
+B = np.vstack((b1,b2,b3)).T
 
 W,H = WHfact(A2,2)
-print(W)
-print(H)
+
+P = orthproj(W,B)
+print(P)
