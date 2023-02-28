@@ -5,8 +5,8 @@ def truncSVD(U,S,Vt,d):
     return U[:,:d], S[:d,:d], Vt[:d]
 
 def WHfact(A,d):
-    U,S,Vt = np.linalg.svd(A2, full_matrices=False); S = np.diag(S)
-    Ud, Sd, Vtd = truncSVD(U,S,Vt,2)
+    U,S,Vt = np.linalg.svd(A, full_matrices=False); S = np.diag(S)
+    Ud, Sd, Vtd = truncSVD(U,S,Vt,d)
     
     W = Ud
     H = Sd@Vtd
@@ -14,6 +14,10 @@ def WHfact(A,d):
 
 def orthproj(W,b):
     return W@(W.T@b)
+
+def dist(W,b):
+    P = orthproj(W,b)
+    return np.linalg.norm(b-P, axis = 0)
 
 #Testvektorar oppgåve 1
 A1 = np.array([[1000,1],
@@ -27,7 +31,7 @@ b2 = np.array([0,0,1],dtype=float)
 b3 = np.array([0,1,0],dtype=float)
 B = np.vstack((b1,b2,b3)).T
 
-W,H = WHfact(A2,2)
+W, H = WHfact(A1,3)
 
-P = orthproj(W,B)
-print(P)
+D = dist(W,B)
+print(D)
