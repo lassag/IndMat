@@ -2,14 +2,14 @@ import numpy as np
 
 #Funksjonar
 def truncSVD(U,S,Vt,d):
-    return U[:,:d], S[:d,:d], Vt[:d]
+    return U[:,:d], S[:d], Vt[:d]
 
 def WHfact(A,d):
-    U,S,Vt = np.linalg.svd(A, full_matrices=False); S = np.diag(S)
+    U,S,Vt = np.linalg.svd(A, full_matrices=False)
     Ud, Sd, Vtd = truncSVD(U,S,Vt,d)
     
     W = Ud
-    H = Sd@Vtd
+    H = Sd*Vtd
     return W, H
 
 def orthproj(W,b):
