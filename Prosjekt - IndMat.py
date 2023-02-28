@@ -2,10 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Funksjonar
-def svd(A):
-    U,S,Vt = np.linalg.svd(A1, full_matrices = False)
-    return U, S, Vt
-
 def truncSVD(U,S,Vt,d):
     return U[:,:d], S[:d], Vt[:d]
 
@@ -46,32 +42,14 @@ b2 = np.array([0,0,1],dtype=float)
 b3 = np.array([0,1,0],dtype=float)
 B = np.vstack((b1,b2,b3)).T
 
-###############################
-
-Wd, Hd = WHfact(A1,3)
-Pd = orthproj(Wd,B)
-
-Dp = dist(Pd,B)
-
-
-P1, H1 = nnproj(A1,B,2)
-P2, H2 = nnproj(A2,B,3)
-
-D1 = dist(P1,B)
-D2 = dist(P2,B)
-
-print(Dp)
-print(D1)
-print(D2)
-
 ##############################################################################
 
 test = np.load('test.npy')/255.0
 train = np.load('train.npy')/255.0
 
 
-print(test.shape)
 print(train.shape)
+print(test.shape)
 
 
 def plotimgs(imgs, nplot = 4):
@@ -79,14 +57,14 @@ def plotimgs(imgs, nplot = 4):
     Plots the nplot*nplot first images in imgs on an nplot x nplot grid. 
     Assumes heigth = width, and that the images are stored columnwise
     input:
-        imgs: (height*width,N) array containing images, where N > nplot**2
-        nplot: integer, nplot**2 images will be plotted
+    imgs: (height*width,N) array containing images, where N > nplot**2
+    nplot: integer, nplot**2 images will be plotted
     """
 
     n = imgs.shape[1]
     m = int(np.sqrt(imgs.shape[0]))
 
-    assert(n > nplot**2), "Need amount of data in matrix N > nplot**2"
+    assert(n >= nplot**2), "Need amount of data in matrix N > nplot**2"
 
     # Initialize subplots
     fig, axes = plt.subplots(nplot,nplot)
@@ -113,15 +91,11 @@ def plotimgs(imgs, nplot = 4):
 
     fig.tight_layout()
     plt.show()
-    
-plotimgs(train[:,0,:], nplot = 4)
 
 
 # Plot the second image of the 2 digit
 # Note that we have to reshape it to be 28 times 28!
-plt.imshow(train[:, 2, 1].reshape((28,28)), cmap = 'gray')
-plt.axis('off')
-plt.show()
+
 
 n = 1000 # Number of datapoints
 c = 7 # Class
@@ -131,30 +105,16 @@ A = train[:,c,:n]
 print(A.shape) # Expect (784,n)
 
 ##############################################################################
-'''
-U7, S7, Vt7 = svd(A)
-#print(U7, S7, Vt7)
 
-diagonal_S7 = np.diag(S7)
-W7, H7 = truncSVD(U7, S7, Vt7, 16)
-print(W7.shape)
-print(H7.shape)
+W, H = WHfact(A,16)
 
-plotimgs(W7, nplot = 4)
-'''
+print(W.shape)
+print(H.shape)
 
-#2b)
-U7, S7, Vt7 = svd(A)
-#print(U7, S7, Vt7)
+B = test[:,7,:]
+P = orthproj(W,B)
+D = dist(P,B)
 
-diagonal_S7 = np.diag(S7)
-W7,H7,Vt7 = truncSVD(U7, diagonal_S7, Vt7, 17)
-print(W7.shape)
-print(H7.shape)
+plotimgs(W)
 
-
-#2c
-plotimgs(W7, nplot = 4)
-
-plt.semilogy(S7)
-plt.show()
+print(np.sum(D)/len(D))
