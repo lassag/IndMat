@@ -1,6 +1,11 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 #Funksjonar
+def svd(A):
+    U,S,Vt = np.linalg.svd(A1, full_matrices = False)
+    return U, S, Vt
+
 def truncSVD(U,S,Vt,d):
     return U[:,:d], S[:d], Vt[:d]
 
