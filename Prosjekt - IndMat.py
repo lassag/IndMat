@@ -106,15 +106,14 @@ print(A.shape) # Expect (784,n)
 
 ##############################################################################
 
-W, H = WHfact(A,16)
-
-print(W.shape)
-print(H.shape)
+U, S, Vt = np.linalg.svd(A, full_matrices=False)
+Ud, Sd, Vtd = truncSVD(U,S,Vt,16)
 
 B = test[:,7,:]
-P = orthproj(W,B)
+P = orthproj(Ud,B)
 D = dist(P,B)
 
-plotimgs(W)
+plotimgs(U*S@Vt, 4)
+plotimgs(Ud*Sd@Vtd, 4)
 
 print(np.sum(D)/len(D))
