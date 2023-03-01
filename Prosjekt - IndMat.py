@@ -116,7 +116,11 @@ for i in range(785):
     D[i] = dist(P,b)
 
 
-# Ud, Sd, Vtd = truncSVD(U,S,Vt,128)
+#Ud, Sd, Vtd = truncSVD(U,S,Vt,128)
+#plt.semilogy(Sd)
+#plt.show()
+#plt.semilogy(S)
+#plt.show()
 
 # P = orthproj(Ud,b)
 # D = dist(P,b)
@@ -130,3 +134,7 @@ plt.show()
 # plotimgs(Ud*Sd, 4)
 plt.plot(D)
 plt.show()
+
+
+
+#2c)
