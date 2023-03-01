@@ -107,17 +107,26 @@ print(A.shape) # Expect (784,n)
 ##############################################################################
 
 U, S, Vt = np.linalg.svd(A, full_matrices=False)
-Ud, Sd, Vtd = truncSVD(U,S,Vt,128)
 
 b = train[:,3,4]
-P = orthproj(Ud,b)
-D = dist(P,b)
+D = np.zeros(785)
+for i in range(785):
+    Ud, Sd, Vtd = truncSVD(U,S,Vt,i)
+    P = orthproj(Ud,b)
+    D[i] = dist(P,b)
+
+
+# Ud, Sd, Vtd = truncSVD(U,S,Vt,128)
+
+# P = orthproj(Ud,b)
+# D = dist(P,b)
 plt.imshow(b.reshape((28,28)), cmap = 'gray')
 plt.axis('off')
 plt.show()
-plt.imshow(P.reshape((28,28)), cmap = 'gray')
-plt.axis('off')
-plt.show()
+# plt.imshow(P.reshape((28,28)), cmap = 'gray')
+# plt.axis('off')
+# plt.show()
 # plotimgs(U*S, 4)
 # plotimgs(Ud*Sd, 4)
-print(D)
+plt.plot(D)
+plt.show()
