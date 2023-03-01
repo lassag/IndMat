@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 
 test = np.load('test.npy')/255.0
 train = np.load('train.npy')/255.0
+pixels = 784
 
-print(train.shape)
-print(test.shape)
+# print(train.shape)
+# print(test.shape)
 
 #Funksjonar
 def truncSVD(U,S,Vt,d):
@@ -20,14 +21,15 @@ def WHfact(A,d):
     return W, H
 
 def nnproj(A, b, d, maxiter = 50, delta = 10e-10):
-    W = A[:,np.random.choice(A.shape[1], size = d, replace = False)]    
+    W = A[:,np.random.choice(A.shape[1], size = d, replace = False)]   
     WtW = W.T@W
     Wtb = W.T@b
-    H = np.random.uniform(0,1,(W.shape[1],b.shape[1]))
+    print(b.shape)
+    H = np.random.uniform(0,1,(d,b.shape[1]))
+    print(H.shape)
     
     for k in range(maxiter):
         H = H * Wtb / (WtW @ H + delta)
-    
     return W@H, H
 
 def orthproj(W,b):
@@ -45,12 +47,18 @@ def selectimg(source, digit, number):
 def dicttrain(digit,number):
     return train[:,digit,:number]
 
-def checkalld(U,S,Vt,b):
-    D = np.zeros(785)
-    for i in range(785):
-        Ud, Sd, Vtd = truncSVD(U,S,Vt,i)
-        P = orthproj(Ud,b)
-        D[i] = dist(P,b)
+def checkalld(U,S,Vt,b,projectiontype="orth"):
+    D = np.zeros(pixels)
+    if projectiontype == "orth":
+        for i in range(pixels):
+            Ud, Sd, Vtd = truncSVD(U,S,Vt,i)
+            P = orthproj(Ud,b)
+            D[i] = dist(P,b)
+    elif projectiontype == "nn":
+        for i in range(pixels):
+            Ud, Sd, Vtd = truncSVD(U,S,Vt,i)
+            P, H = nnproj(Ud,b,i)
+            D[i] = dist(P,b)
     plt.semilogy(D)
     plt.show()
 
@@ -115,29 +123,43 @@ def plotimgs(imgs, nplot = 4):
 
 ##############################################################################
 
-A = dicttrain(7,1000)
-b = selectimg("test",3,4)
+d = 1000
+cA = 3
+cB = 3
+r = 46
+n = 128
+
+A = dicttrain(cA,n)
+#b = selectimg("test",3,4)
+B = test[:,cB,:]
+print(B)
 
 U, S, Vt = np.linalg.svd(A, full_matrices=False)
-Ud, Sd, Vtd = truncSVD(U,S,Vt,128)
+Ud, Sd, Vtd = truncSVD(U,S,Vt,d)
 
-P = orthproj(Ud,b)
-D = dist(P,b)
-
+# Pnn, H = nnproj(Ud,B,d)
+# print(Pnn)
+# Dnn = dist(Pnn,b)
+Porth = orthproj(Ud,B)
+print(Porth)
+# Dorth = dist(Porth,B)
+# print(Dnn)
+# print(Dorth)
 #plt.semilogy(Sd)
 #plt.show()
 
-plt.imshow(b.reshape((28,28)), cmap = 'gray')
+plt.imshow(B[:,r].reshape((28,28)), cmap = 'gray')
 plt.axis('off')
 plt.show()
-plt.imshow(P.reshape((28,28)), cmap = 'gray')
+# plt.imshow(Pnn.T[r].reshape((28,28)), cmap = 'gray')
+# plt.axis('off')
+# plt.show()
+plt.imshow(Porth.T[r].reshape((28,28)), cmap = 'gray')
 plt.axis('off')
 plt.show()
-# plotimgs(U*S, 4)
-# plotimgs(Ud*Sd, 4)
-
-checkalld(U,S,Vt,b)
 
 
+# plotimgs(U, 4)
+# plotimgs(Ud, 4)
 
-#2c)
+#checkalld(U,S,Vt,B,"nn")
