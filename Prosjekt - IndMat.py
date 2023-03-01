@@ -122,7 +122,11 @@ U, S, Vt = np.linalg.svd(A, full_matrices=False)
 Ud, Sd, Vtd = truncSVD(U,S,Vt,128)
 
 P = orthproj(Ud,b)
-# D = dist(P,b)
+D = dist(P,b)
+
+#plt.semilogy(Sd)
+#plt.show()
+
 plt.imshow(b.reshape((28,28)), cmap = 'gray')
 plt.axis('off')
 plt.show()
@@ -133,3 +137,7 @@ plt.show()
 # plotimgs(Ud*Sd, 4)
 
 checkalld(U,S,Vt,b)
+
+
+
+#2c)
