@@ -1,6 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+test = np.load('test.npy')/255.0
+train = np.load('train.npy')/255.0
+
+print(train.shape)
+print(test.shape)
+
 #Funksjonar
 def truncSVD(U,S,Vt,d):
     return U[:,:d], S[:d], Vt[:d]
@@ -30,6 +36,24 @@ def orthproj(W,b):
 def dist(P,b):
     return np.linalg.norm(b-P, axis = 0)
 
+def selectimg(source, digit, number):
+    if source == "train":
+        return train[:,digit,number]
+    elif source == "test":
+        return test[:,digit,number]
+    
+def dicttrain(digit,number):
+    return train[:,digit,:number]
+
+def checkalld(U,S,Vt,b):
+    D = np.zeros(785)
+    for i in range(785):
+        Ud, Sd, Vtd = truncSVD(U,S,Vt,i)
+        P = orthproj(Ud,b)
+        D[i] = dist(P,b)
+    plt.semilogy(D)
+    plt.show()
+
 #Testvektorar oppgåve 1
 A1 = np.array([[1000,1],
                [0, 1],
@@ -43,14 +67,6 @@ b3 = np.array([0,1,0],dtype=float)
 B = np.vstack((b1,b2,b3)).T
 
 ##############################################################################
-
-test = np.load('test.npy')/255.0
-train = np.load('train.npy')/255.0
-
-
-print(train.shape)
-print(test.shape)
-
 
 def plotimgs(imgs, nplot = 4):
     """
@@ -97,36 +113,23 @@ def plotimgs(imgs, nplot = 4):
 # Note that we have to reshape it to be 28 times 28!
 
 
-n = 1000 # Number of datapoints
-c = 7 # Class
-
-A = train[:,c,:n]
-
-print(A.shape) # Expect (784,n)
-
 ##############################################################################
 
+A = dicttrain(7,1000)
+b = selectimg("test",3,4)
+
 U, S, Vt = np.linalg.svd(A, full_matrices=False)
+Ud, Sd, Vtd = truncSVD(U,S,Vt,128)
 
-b = train[:,3,4]
-D = np.zeros(785)
-for i in range(785):
-    Ud, Sd, Vtd = truncSVD(U,S,Vt,i)
-    P = orthproj(Ud,b)
-    D[i] = dist(P,b)
-
-
-# Ud, Sd, Vtd = truncSVD(U,S,Vt,128)
-
-# P = orthproj(Ud,b)
+P = orthproj(Ud,b)
 # D = dist(P,b)
 plt.imshow(b.reshape((28,28)), cmap = 'gray')
 plt.axis('off')
 plt.show()
-# plt.imshow(P.reshape((28,28)), cmap = 'gray')
-# plt.axis('off')
-# plt.show()
+plt.imshow(P.reshape((28,28)), cmap = 'gray')
+plt.axis('off')
+plt.show()
 # plotimgs(U*S, 4)
 # plotimgs(Ud*Sd, 4)
-plt.plot(D)
-plt.show()
+
+checkalld(U,S,Vt,b)
