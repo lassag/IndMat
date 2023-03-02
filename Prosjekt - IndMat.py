@@ -78,12 +78,15 @@ def display(B,P,D,c,r):
     plt.imshow(B[c,r].reshape((28,28)), cmap = 'gray')
     plt.axis('off')
     plt.show()
-    for i in range(10):
-        plt.imshow(P[i,c,:,r].reshape((28,28)), cmap = 'gray')
-        plt.axis('off')
-        plt.show()
-        print(f'Avstandar: \n {D[:,c,r]}')
-        print(f'Gjeting: {classification[c,r]}\n Riktig: {c}')
+    
+    fig, axes = plt.subplots(2,5)
+    for i in range(2):
+        for j in range(5):
+            axes[i,j].imshow(P[(i+1)*(j+1)-1,c,:,r].reshape((28,28)), cmap = 'gray')
+            axes[i,j].axis('off')
+    plt.show()
+    print(f'Avstandar: \n {D[:,c,r]}')
+    print(f'Gjeting: {classification[c,r]}\n Riktig: {c}')
 
 #Testvektorar oppgåve 1
 A1 = np.array([[1000,1],
@@ -159,8 +162,8 @@ def plotimgs(imgs, nplot = 4):
 #Klassifisering
 k = 300 #Tal på treningsdatapunkt
 d = 128 #Trunkeringskoeffisient
-c = 4 #Klasse for test
-r = 3 #Nummer for test
+c = 6 #Klasse for test
+r = 9 #Nummer for test
 
 B, P, D, classification = classify(k,d)
 display(B, P, D, c, r)
