@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 
 test = np.load('test.npy')/255.0
 train = np.load('train.npy')/255.0
+testsize = test.shape[2]
+trainsize = train.shape[2]
 pixels = 784
 
 # print(train.shape)
@@ -64,8 +66,8 @@ def getclasses(k,d):
 def classify(k,d,projectiontype="orth"):
     B = np.swapaxes(np.swapaxes(test,0,1),1,2)
     C, W, H = getclasses(k,d)
-    P = np.zeros((10,10,pixels,800))
-    D = np.zeros((10,10,800))
+    P = np.zeros((10,10,pixels,testsize))
+    D = np.zeros((10,10,testsize))
     
     for i in range(10):
         for j in range(10):
@@ -75,7 +77,7 @@ def classify(k,d,projectiontype="orth"):
     return B, P, D, np.argmin(D, axis=0)
 
 def display(B,P,D,c,r):
-    P = P.reshape((2,5,10,784,800))
+    P = P.reshape((2,5,10,pixels,testsize))
     plt.imshow(B[c,r].reshape((28,28)), cmap = 'gray')
     plt.axis('off')
     plt.show()
@@ -87,6 +89,10 @@ def display(B,P,D,c,r):
     plt.show()
     print(f'Skår: \n {D[:,c,r].reshape((2,5))}')
     print(f'Gjeting: {classification[c,r]}\n Riktig: {c}')
+    
+def accuracy(C,indecies=[0,1,2,3,4,5,6,7,8,9]):
+    A = np.tile(indecies,(testsize,1)).T
+    return np.sum(A == C[indecies]) / C[indecies].size
 
 #Testvektorar oppgåve 1
 A1 = np.array([[1000,1],
@@ -161,9 +167,16 @@ def plotimgs(imgs, nplot = 4):
 
 #Klassifisering
 k = 300 #Tal på treningsdatapunkt
-d = 32 #Trunkeringskoeffisient
+d = 16 #Trunkeringskoeffisient
 c = 6 #Klasse for test
 r = 14 #Nummer for test
+indecies = np.array([0,1,2,3,4,5,6,7,9])
 
-B, P, D, classification = classify(k,d)
-display(B, P, D, c, r)
+B, P, D, C = classify(k,d)
+A = np.zeros(10)
+for i in range(10):
+    A[i] = accuracy(C,i)
+plt.plot(A)
+plt.ylim(bottom=0)
+plt.show()
+# display(B, P, D, c, r)
