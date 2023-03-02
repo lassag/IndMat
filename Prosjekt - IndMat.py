@@ -61,6 +61,30 @@ def getclasses(k,d):
         W[i], H[i] = WHfact(C[i],d)
     return C, W, H
 
+def classify(k,d,projectiontype="orth"):
+    B = np.swapaxes(np.swapaxes(test,0,1),1,2)
+    C, W, H = getclasses(k,d)
+    P = np.zeros((10,10,pixels,800))
+    D = np.zeros((10,10,800))
+    
+    for i in range(10):
+        for j in range(10):
+            P[j,i] = orthproj(W[j],B[i].T)
+            D[i,j] = dist(P[j,i],B[i].T)
+    
+    return B, P, D, np.argmin(D, axis=0)
+
+def display(B,P,D,c,r):
+    plt.imshow(B[c,r].reshape((28,28)), cmap = 'gray')
+    plt.axis('off')
+    plt.show()
+    for i in range(10):
+        plt.imshow(P[i,c,:,r].reshape((28,28)), cmap = 'gray')
+        plt.axis('off')
+        plt.show()
+        print(f'Avstandar: \n {D[:,c,r]}')
+        print(f'Gjeting: {classification[c,r]}\n Riktig: {c}')
+
 #Testvektorar oppgåve 1
 A1 = np.array([[1000,1],
                [0, 1],
@@ -121,40 +145,22 @@ def plotimgs(imgs, nplot = 4):
 
 
 ##############################################################################
-def classify(k,d,c,projectiontype="orth"):
-    B = np.swapaxes(np.swapaxes(test,0,1),1,2)
-    C, W, H = getclasses(k)
-    
-
-d = 64
-c = 3
-r = 47
-k = 1000
-
-C, W, H = getclasses(k, d)
-
-B = np.swapaxes(np.swapaxes(test,0,1),1,2)
-print(B.shape)
-# print(B)
-
 # U, S, Vt = np.linalg.svd(C[cA], full_matrices=False)
 # Ud, Sd, Vtd = truncSVD(U,S,Vt,d)
 #plt.semilogy(Sd)
 #plt.show()
-Porth = np.zeros((10,pixels,800))
-for i in range(10):
-    Porth[i] = orthproj(W[i],B[c].T)
-
-
-plt.imshow(B[c,r].reshape((28,28)), cmap = 'gray')
-plt.axis('off')
-plt.show()
-for i in range(10):
-    plt.imshow(Porth[i,:,r].reshape((28,28)), cmap = 'gray')
-    plt.axis('off')
-    plt.show()
 
 # plotimgs(U, 4)
 # plotimgs(Ud, 4)
 
 #checkalld(U,S,Vt,B,"orth")
+#########################################
+
+#Klassifisering
+k = 300 #Tal på treningsdatapunkt
+d = 128 #Trunkeringskoeffisient
+c = 4 #Klasse for test
+r = 3 #Nummer for test
+
+B, P, D, classification = classify(k,d)
+display(B, P, D, c, r)
