@@ -38,15 +38,6 @@ def orthproj(W,b):
 def dist(P,b):
     return np.linalg.norm(b-P, axis = 0)
 
-def selectimg(source, digit, number):
-    if source == "train":
-        return train[:,digit,number]
-    elif source == "test":
-        return test[:,digit,number]
-    
-def dicttrain(digit,number):
-    return train[:,digit,:number]
-
 def checkalld(U,S,Vt,b,projectiontype="orth"):
     D = np.zeros(pixels)
     if projectiontype == "orth":
@@ -61,6 +52,14 @@ def checkalld(U,S,Vt,b,projectiontype="orth"):
             D[i] = dist(P,b)
     plt.semilogy(D)
     plt.show()
+
+def getclasses(k,d):
+    C = np.swapaxes(train[:,:10,:k],0,1)
+    W = np.zeros((10,pixels,d))
+    H = np.zeros((10,d,k))
+    for i in range(10):
+        W[i], H[i] = WHfact(C[i],d)
+    return C, W, H
 
 #Testvektorar oppgåve 1
 A1 = np.array([[1000,1],
@@ -122,44 +121,40 @@ def plotimgs(imgs, nplot = 4):
 
 
 ##############################################################################
+def classify(k,d,c,projectiontype="orth"):
+    B = np.swapaxes(np.swapaxes(test,0,1),1,2)
+    C, W, H = getclasses(k)
+    
 
-d = 1000
-cA = 3
-cB = 3
-r = 46
-n = 128
+d = 64
+c = 3
+r = 47
+k = 1000
 
-A = dicttrain(cA,n)
-#b = selectimg("test",3,4)
-B = test[:,cB,:]
-print(B)
+C, W, H = getclasses(k, d)
 
-U, S, Vt = np.linalg.svd(A, full_matrices=False)
-Ud, Sd, Vtd = truncSVD(U,S,Vt,d)
+B = np.swapaxes(np.swapaxes(test,0,1),1,2)
+print(B.shape)
+# print(B)
 
-# Pnn, H = nnproj(Ud,B,d)
-# print(Pnn)
-# Dnn = dist(Pnn,b)
-Porth = orthproj(Ud,B)
-print(Porth)
-# Dorth = dist(Porth,B)
-# print(Dnn)
-# print(Dorth)
+# U, S, Vt = np.linalg.svd(C[cA], full_matrices=False)
+# Ud, Sd, Vtd = truncSVD(U,S,Vt,d)
 #plt.semilogy(Sd)
 #plt.show()
+Porth = np.zeros((10,pixels,800))
+for i in range(10):
+    Porth[i] = orthproj(W[i],B[c].T)
 
-plt.imshow(B[:,r].reshape((28,28)), cmap = 'gray')
+
+plt.imshow(B[c,r].reshape((28,28)), cmap = 'gray')
 plt.axis('off')
 plt.show()
-# plt.imshow(Pnn.T[r].reshape((28,28)), cmap = 'gray')
-# plt.axis('off')
-# plt.show()
-plt.imshow(Porth.T[r].reshape((28,28)), cmap = 'gray')
-plt.axis('off')
-plt.show()
-
+for i in range(10):
+    plt.imshow(Porth[i,:,r].reshape((28,28)), cmap = 'gray')
+    plt.axis('off')
+    plt.show()
 
 # plotimgs(U, 4)
 # plotimgs(Ud, 4)
 
-#checkalld(U,S,Vt,B,"nn")
+#checkalld(U,S,Vt,B,"orth")
