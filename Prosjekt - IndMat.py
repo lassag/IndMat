@@ -75,14 +75,14 @@ def classify(k,d,projectiontype="orth"):
     return B, P, D, np.argmin(D, axis=0)
 
 def display(B,P,D,c,r):
+    P = P.reshape((2,5,10,784,800))
     plt.imshow(B[c,r].reshape((28,28)), cmap = 'gray')
     plt.axis('off')
     plt.show()
-    
     fig, axes = plt.subplots(2,5)
     for i in range(2):
         for j in range(5):
-            axes[i,j].imshow(P[(i+1)*(j+1)-1,c,:,r].reshape((28,28)), cmap = 'gray')
+            axes[i,j].imshow(P[i,j,c,:,r].reshape((28,28)), cmap = 'gray')
             axes[i,j].axis('off')
     plt.show()
     print(f'Skår: \n {D[:,c,r].reshape((2,5))}')
@@ -161,10 +161,9 @@ def plotimgs(imgs, nplot = 4):
 
 #Klassifisering
 k = 300 #Tal på treningsdatapunkt
-d = 128 #Trunkeringskoeffisient
+d = 32 #Trunkeringskoeffisient
 c = 6 #Klasse for test
-r = 9 #Nummer for test
+r = 14 #Nummer for test
 
 B, P, D, classification = classify(k,d)
-print(D)
 display(B, P, D, c, r)
