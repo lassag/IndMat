@@ -85,7 +85,7 @@ def display(B,P,D,c,r):
             axes[i,j].imshow(P[(i+1)*(j+1)-1,c,:,r].reshape((28,28)), cmap = 'gray')
             axes[i,j].axis('off')
     plt.show()
-    print(f'Avstandar: \n {D[:,c,r]}')
+    print(f'Skår: \n {D[:,c,r].reshape((2,5))}')
     print(f'Gjeting: {classification[c,r]}\n Riktig: {c}')
 
 #Testvektorar oppgåve 1
@@ -166,4 +166,5 @@ c = 6 #Klasse for test
 r = 9 #Nummer for test
 
 B, P, D, classification = classify(k,d)
+print(D)
 display(B, P, D, c, r)
