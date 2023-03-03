@@ -76,19 +76,25 @@ def classify(k,d,projectiontype="orth"):
     
     return B, P, D, np.argmin(D, axis=0)
 
-def display(B,P,D,c,r):
+def display(B,P,D,C,c,r):
     P = P.reshape((2,5,10,pixels,testsize))
     plt.imshow(B[c,r].reshape((28,28)), cmap = 'gray')
     plt.axis('off')
     plt.show()
     fig, axes = plt.subplots(2,5)
+    count = 0
     for i in range(2):
         for j in range(5):
             axes[i,j].imshow(P[i,j,c,:,r].reshape((28,28)), cmap = 'gray')
+            if C[c,r] == count:
+                axes[i,j].set_title(f'{count}', color = 'red')
+            else:
+                axes[i,j].set_title(f'{count}')
             axes[i,j].axis('off')
+            count += 1
     plt.show()
     print(f'Skår: \n {D[:,c,r].reshape((2,5))}')
-    print(f'Gjeting: {classification[c,r]}\n Riktig: {c}')
+    print(f'Gjeting: {C[c,r]}\n Riktig: {c}')
     
 def accuracy(C,indecies=[0,1,2,3,4,5,6,7,8,9]):
     A = np.tile(indecies,(testsize,1)).T
@@ -168,15 +174,15 @@ def plotimgs(imgs, nplot = 4):
 #Klassifisering
 k = 300 #Tal på treningsdatapunkt
 d = 16 #Trunkeringskoeffisient
-c = 6 #Klasse for test
-r = 14 #Nummer for test
+c = 1 #Klasse for test
+r = 58 #Nummer for test
 indecies = np.array([0,1,2,3,4,5,6,7,9])
 
 B, P, D, C = classify(k,d)
-A = np.zeros(10)
-for i in range(10):
-    A[i] = accuracy(C,i)
-plt.plot(A)
-plt.ylim(bottom=0)
-plt.show()
-# display(B, P, D, c, r)
+# A = np.zeros(10)
+# for i in range(10):
+#     A[i] = accuracy(C,i)
+# plt.plot(A)
+# plt.ylim(bottom=0)
+# plt.show()
+display(B, P, D, C, c, r)
