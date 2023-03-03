@@ -61,7 +61,7 @@ def getclasses(k,d):
         W[i], H[i] = WHfact(C[i],d)
     return C, W, H
 
-def classify(k,d,projectiontype="orth"):
+def classify(k,d,projectiontype="orth", maxiter = 75, delta = 10e-2):
     B = np.swapaxes(np.swapaxes(test,0,1),1,2)
     C, W, H = getclasses(k,d)
     P = np.zeros((10,10,pixels,testsize))
@@ -72,7 +72,7 @@ def classify(k,d,projectiontype="orth"):
             if projectiontype == "orth":
                 P[j,i] = orthproj(W[j],B[i].T)
             elif projectiontype  == "nn":
-                P[j,i] = nnproj(C[j],B[i].T,d)
+                P[j,i] = nnproj(C[j],B[i].T,d, maxiter, delta)
             D[i,j] = dist(P[j,i],B[i].T)
     
     return B, P, D, np.argmin(D, axis=0)
@@ -182,11 +182,12 @@ def plotimgs(imgs, nplot = 4):
 #########################################
 
 #Klassifisering
-k = 2000 #Tal på treningsdatapunkt
+k = 1000 #Tal på treningsdatapunkt
 dorth = 32 #Trunkeringskoeffisient
-dnn = 256 #Utval ENMF
+dnn = 128 #Utval ENMF
 c = 7 #Klasse for test
 r = 58 #Nummer for test
+delta = 10e-2
 indecies = np.array([0,1,2,3,4,5,6,7,8,9])
 
 # A, W, H = getclasses(k,d)
@@ -195,7 +196,7 @@ indecies = np.array([0,1,2,3,4,5,6,7,8,9])
 # plt.show()
 
 B, Porth, Dorth, Corth = classify(k, dorth, projectiontype="orth")
-B, Pnn, Dnn, Cnn = classify(k, dnn, projectiontype="nn")
+B, Pnn, Dnn, Cnn = classify(k, dnn, projectiontype="nn", delta)
 display(B, Porth, Dorth, Corth, c, r)
 showaccuracy(Corth,indecies)
 display(B, Pnn, Dnn, Cnn, c, r)
