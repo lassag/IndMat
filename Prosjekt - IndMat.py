@@ -107,12 +107,11 @@ def showaccuracy(C,indecies=[0,1,2,3,4,5,6,7,8,9]):
     plt.scatter(indecies,A)
     plt.xticks(indecies)
     plt.yticks(np.linspace(0, 1, num=11, endpoint=True))
-    plt.ylim(bottom=0)
     plt.title("Treffsikkerheit")
     plt.xlabel("Siffer")
     plt.ylabel("Riktige gjetingar")
     plt.show()
-    print(f'Total treffsikkeheit: {np.round(np.sum(A)/A.size,3)*100}%')
+    print(f'Total treffsikkeheit: {np.round(np.sum(A)/A.size * 100,1)}%')
 
 #Testvektorar oppgåve 1
 A1 = np.array([[1000,1],
@@ -174,10 +173,6 @@ def plotimgs(imgs, nplot = 4):
 
 
 ##############################################################################
-# U, S, Vt = np.linalg.svd(A[c], full_matrices=False)
-# Ud, Sd, Vtd = truncSVD(U,S,Vt,d)
-#plt.semilogy(Sd)
-#plt.show()
 
 # plotimgs(U, 4)
 # plotimgs(Ud, 4)
@@ -186,12 +181,33 @@ def plotimgs(imgs, nplot = 4):
 #########################################
 
 #Klassifisering
-k = 300 #Tal på treningsdatapunkt
+k = 1000 #Tal på treningsdatapunkt
 d = 32 #Trunkeringskoeffisient
 c = 7 #Klasse for test
 r = 58 #Nummer for test
 indecies = np.array([0,1,2,3,4,5,6,7,8,9])
 
+# A, W, H = getclasses(k,d)
+# U, S, Vt = np.linalg.svd(A[c], full_matrices=False)
+# plt.semilogy(S)
+# plt.show()
+
 B, P, D, C = classify(k,d)
 display(B, P, D, C, c, r)
 showaccuracy(C,indecies)
+
+###################################
+
+# Q = np.ones(10)*2
+# for i in range(10):
+#     Q[i] = Q[i]**i
+# acc = np.array([36.2, 47.7, 60.5, 68.4, 76.2, 77.1, 74.2, 69.8, 67.6, 39.0]) / 100
+# plt.semilogx(Q,acc, base=2, subs=None)
+# plt.title("Treffsikkerheit")
+# plt.xticks(Q)
+# plt.xlabel("Trunkeringskoeffisient")
+# plt.yticks(np.linspace(0, 1, num=11, endpoint=True))
+# plt.ylabel("Riktige gjetingar")
+# plt.show()
+
+##################################
