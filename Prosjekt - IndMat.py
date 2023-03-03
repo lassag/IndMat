@@ -3,8 +3,6 @@ import matplotlib.pyplot as plt
 
 test = np.load('test.npy')/255.0
 train = np.load('train.npy')/255.0
-testsize = test.shape[2]
-trainsize = train.shape[2]
 pixels = 784
 
 # print(train.shape)
@@ -61,11 +59,11 @@ def getclasses(k,d):
         W[i], H[i] = WHfact(C[i],d)
     return C, W, H
 
-def classify(k,d,projectiontype="orth", maxiter = 75, delta = 10e-2):
-    B = np.swapaxes(np.swapaxes(test,0,1),1,2)
+def classify(k, d, t=800, projectiontype="orth", maxiter = 75, delta = 10e-2):
+    B = np.swapaxes(np.swapaxes(test[:,:,np.random.choice(test.shape[2], size = t, replace = False)],0,1),1,2)
     C, W, H = getclasses(k,d)
-    P = np.zeros((10,10,pixels,testsize))
-    D = np.zeros((10,10,testsize))
+    P = np.zeros((10,10,pixels,t))
+    D = np.zeros((10,10,t))
     
     for i in range(10):
         for j in range(10):
@@ -96,14 +94,14 @@ def display(B,P,D,C,c,r):
     print(f'Skår: \n {D[:,c,r].reshape((2,5))}')
     print(f'Gjeting: {C[c,r]}\n Riktig: {c}')
     
-def accuracy(C,indecies=[0,1,2,3,4,5,6,7,8,9]):
-    A = np.tile(indecies,(testsize,1)).T
+def accuracy(C,t=800,indecies=[0,1,2,3,4,5,6,7,8,9]):
+    A = np.tile(indecies,(t,1)).T
     return np.sum(A == C[indecies]) / C[indecies].size
 
-def showaccuracy(C,indecies=[0,1,2,3,4,5,6,7,8,9]):
+def showaccuracy(C,t=800,indecies=[0,1,2,3,4,5,6,7,8,9]):
     A = np.zeros(len(indecies))
     for i in range(len(indecies)):
-        A[i] = accuracy(C,i)
+        A[i] = accuracy(C,t,i)
     plt.plot(indecies,A)
     plt.scatter(indecies,A)
     plt.xticks(indecies)
@@ -114,17 +112,36 @@ def showaccuracy(C,indecies=[0,1,2,3,4,5,6,7,8,9]):
     plt.show()
     print(f'Total treffsikkeheit: {np.round(np.sum(A)/A.size * 100,1)}%')
 
+def getaccuracies(k, n, t=800, projectiontype="orth",maxiter=75,delta=10e-2):
+    Q = np.ones(n,dtype = int)*2
+    acc = np.zeros(n)
+    for i in range(n):
+        Q[i] = Q[i]**i
+        if projectiontype == "orth":
+            B, P, D, C = classify(k,Q[i],t,"orth")
+        elif projectiontype == "nn":
+            B, P, D, C = classify(k,Q[i],t,"nn",maxiter,delta)
+        acc[i] = accuracy(C,t,indecies)
+    
+    plt.semilogx(Q, acc, base=2, subs=None)
+    plt.title("Treffsikkerheit")
+    plt.xticks(Q)
+    plt.xlabel("Trunkeringskoeffisient")
+    plt.yticks(np.linspace(0, 1, num=11, endpoint=True))
+    plt.ylabel("Riktige gjetingar")
+    plt.show()
+
 #Testvektorar oppgåve 1
-A1 = np.array([[1000,1],
-               [0, 1],
-               [0, 0]],dtype=float)
-A2 = np.array([[1,0,0],
-               [1,0,0],
-               [0,0,1]],dtype=float)
-b1 = np.array([2,1,0],dtype=float)
-b2 = np.array([0,0,1],dtype=float)
-b3 = np.array([0,1,0],dtype=float)
-B = np.vstack((b1,b2,b3)).T
+# A1 = np.array([[1000,1],
+#                [0, 1],
+#                [0, 0]],dtype=float)
+# A2 = np.array([[1,0,0],
+#                [1,0,0],
+#                [0,0,1]],dtype=float)
+# b1 = np.array([2,1,0],dtype=float)
+# b2 = np.array([0,0,1],dtype=float)
+# b3 = np.array([0,1,0],dtype=float)
+# B = np.vstack((b1,b2,b3)).T
 
 ##############################################################################
 
@@ -182,11 +199,14 @@ def plotimgs(imgs, nplot = 4):
 #########################################
 
 #Klassifisering
-k = 1000 #Tal på treningsdatapunkt
+k = 600 #Tal på treningsdatapunkt
+n = 10 #Tal på toarpotensar 
+t = 50 #Tal på testdatapunkt
 dorth = 32 #Trunkeringskoeffisient
-dnn = 128 #Utval ENMF
-c = 7 #Klasse for test
-r = 58 #Nummer for test
+dnn = 64 #Utval ENMF
+c = 0 #Klasse for test
+r = 0 #Nummer for test
+maxiter = 75
 delta = 10e-2
 indecies = np.array([0,1,2,3,4,5,6,7,8,9])
 
@@ -195,25 +215,22 @@ indecies = np.array([0,1,2,3,4,5,6,7,8,9])
 # plt.semilogy(S)
 # plt.show()
 
-B, Porth, Dorth, Corth = classify(k, dorth, projectiontype="orth")
-B, Pnn, Dnn, Cnn = classify(k, dnn, projectiontype="nn", delta)
+B, Porth, Dorth, Corth = classify(k, dorth, t, "orth")
 display(B, Porth, Dorth, Corth, c, r)
-showaccuracy(Corth,indecies)
+showaccuracy(Corth,t,indecies)
+getaccuracies(k,n,t,"orth",maxiter,delta)
+
+B, Pnn, Dnn, Cnn = classify(k, dnn, t, "nn", maxiter, delta)
 display(B, Pnn, Dnn, Cnn, c, r)
-showaccuracy(Cnn,indecies)
+showaccuracy(Cnn,t,indecies)
+getaccuracies(k,n,t,"nn",maxiter,delta)
 
 ###################################
 
-# Q = np.ones(10)*2
-# for i in range(10):
-#     Q[i] = Q[i]**i
+
 # acc = np.array([36.2, 47.7, 60.5, 68.4, 76.2, 77.1, 74.2, 69.8, 67.6, 39.0]) / 100
-# plt.semilogx(Q,acc, base=2, subs=None)
-# plt.title("Treffsikkerheit")
-# plt.xticks(Q)
-# plt.xlabel("Trunkeringskoeffisient")
-# plt.yticks(np.linspace(0, 1, num=11, endpoint=True))
-# plt.ylabel("Riktige gjetingar")
-# plt.show()
+
+
+
 
 ##################################
