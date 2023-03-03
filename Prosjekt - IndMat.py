@@ -110,7 +110,7 @@ def showaccuracy(C,t=800,indecies=[0,1,2,3,4,5,6,7,8,9]):
     plt.xlabel("Siffer")
     plt.ylabel("Riktige gjetingar")
     plt.show()
-    print(f'Total treffsikkeheit: {np.round(np.sum(A)/A.size * 100,1)}%')
+    print(f'Total treffsikkerheit: {np.round(np.sum(A)/A.size * 100,1)}%')
 
 def getaccuracies(k, n, t=800, projectiontype="orth",maxiter=75,delta=10e-2):
     Q = np.ones(n,dtype = int)*2
@@ -199,12 +199,12 @@ def plotimgs(imgs, nplot = 4):
 #########################################
 
 #Klassifisering
-k = 600 #Tal på treningsdatapunkt
+k = 1000 #Tal på treningsdatapunkt
 n = 10 #Tal på toarpotensar 
-t = 50 #Tal på testdatapunkt
-dorth = 32 #Trunkeringskoeffisient
-dnn = 64 #Utval ENMF
-c = 0 #Klasse for test
+t = 100 #Tal på testdatapunkt
+dorth = 2**5 #Trunkeringskoeffisient
+dnn = 2**9 #Utval ENMF
+c = 4 #Klasse for test
 r = 0 #Nummer for test
 maxiter = 75
 delta = 10e-2
@@ -215,14 +215,14 @@ indecies = np.array([0,1,2,3,4,5,6,7,8,9])
 # plt.semilogy(S)
 # plt.show()
 
-B, Porth, Dorth, Corth = classify(k, dorth, t, "orth")
-display(B, Porth, Dorth, Corth, c, r)
-showaccuracy(Corth,t,indecies)
+B, P, D, C = classify(k, dorth, t, "orth")
+display(B, P, D, C, c, r)
+showaccuracy(C,t,indecies)
 getaccuracies(k,n,t,"orth",maxiter,delta)
 
-B, Pnn, Dnn, Cnn = classify(k, dnn, t, "nn", maxiter, delta)
-display(B, Pnn, Dnn, Cnn, c, r)
-showaccuracy(Cnn,t,indecies)
+B, P, D, C = classify(k, dnn, t, "nn", maxiter, delta)
+display(B, P, D, C, c, r)
+showaccuracy(C,t,indecies)
 getaccuracies(k,n,t,"nn",maxiter,delta)
 
 ###################################
