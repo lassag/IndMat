@@ -77,7 +77,6 @@ def classify(k,d,projectiontype="orth"):
     return B, P, D, np.argmin(D, axis=0)
 
 def display(B,P,D,C,c,r):
-    P = P.reshape((2,5,10,pixels,testsize))
     plt.imshow(B[c,r].reshape((28,28)), cmap = 'gray')
     plt.axis('off')
     plt.show()
@@ -85,7 +84,7 @@ def display(B,P,D,C,c,r):
     count = 0
     for i in range(2):
         for j in range(5):
-            axes[i,j].imshow(P[i,j,c,:,r].reshape((28,28)), cmap = 'gray')
+            axes[i,j].imshow(P[count,c,:,r].reshape((28,28)), cmap = 'gray')
             if C[c,r] == count:
                 axes[i,j].set_title(f'{count}', color = 'red')
             else:
@@ -99,6 +98,21 @@ def display(B,P,D,C,c,r):
 def accuracy(C,indecies=[0,1,2,3,4,5,6,7,8,9]):
     A = np.tile(indecies,(testsize,1)).T
     return np.sum(A == C[indecies]) / C[indecies].size
+
+def showaccuracy(C,indecies=[0,1,2,3,4,5,6,7,8,9]):
+    A = np.zeros(len(indecies))
+    for i in range(len(indecies)):
+        A[i] = accuracy(C,i)
+    plt.plot(indecies,A)
+    plt.scatter(indecies,A)
+    plt.xticks(indecies)
+    plt.yticks(np.linspace(0, 1, num=11, endpoint=True))
+    plt.ylim(bottom=0)
+    plt.title("Treffsikkerheit")
+    plt.xlabel("Siffer")
+    plt.ylabel("Riktige gjetingar")
+    plt.show()
+    print(f'Total treffsikkeheit: {np.round(np.sum(A)/A.size,3)*100}%')
 
 #Testvektorar oppgåve 1
 A1 = np.array([[1000,1],
@@ -160,7 +174,7 @@ def plotimgs(imgs, nplot = 4):
 
 
 ##############################################################################
-# U, S, Vt = np.linalg.svd(C[cA], full_matrices=False)
+# U, S, Vt = np.linalg.svd(A[c], full_matrices=False)
 # Ud, Sd, Vtd = truncSVD(U,S,Vt,d)
 #plt.semilogy(Sd)
 #plt.show()
@@ -173,16 +187,11 @@ def plotimgs(imgs, nplot = 4):
 
 #Klassifisering
 k = 300 #Tal på treningsdatapunkt
-d = 16 #Trunkeringskoeffisient
-c = 1 #Klasse for test
+d = 32 #Trunkeringskoeffisient
+c = 7 #Klasse for test
 r = 58 #Nummer for test
-indecies = np.array([0,1,2,3,4,5,6,7,9])
+indecies = np.array([0,1,2,3,4,5,6,7,8,9])
 
 B, P, D, C = classify(k,d)
-# A = np.zeros(10)
-# for i in range(10):
-#     A[i] = accuracy(C,i)
-# plt.plot(A)
-# plt.ylim(bottom=0)
-# plt.show()
 display(B, P, D, C, c, r)
+showaccuracy(C,indecies)
