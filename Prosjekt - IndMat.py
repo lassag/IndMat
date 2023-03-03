@@ -26,13 +26,11 @@ def nnproj(A, b, d, maxiter = 50, delta = 10e-10):
     W = A[:,np.random.choice(A.shape[1], size = d, replace = False)]   
     WtW = W.T@W
     Wtb = W.T@b
-    print(b.shape)
     H = np.random.uniform(0,1,(d,b.shape[1]))
-    print(H.shape)
     
     for k in range(maxiter):
         H = H * Wtb / (WtW @ H + delta)
-    return W@H, H
+    return W@H
 
 def orthproj(W,b):
     return W@(W.T@b)
@@ -50,7 +48,7 @@ def checkalld(U,S,Vt,b,projectiontype="orth"):
     elif projectiontype == "nn":
         for i in range(pixels):
             Ud, Sd, Vtd = truncSVD(U,S,Vt,i)
-            P, H = nnproj(Ud,b,i)
+            P = nnproj(Ud,b,i)
             D[i] = dist(P,b)
     plt.semilogy(D)
     plt.show()
@@ -71,7 +69,10 @@ def classify(k,d,projectiontype="orth"):
     
     for i in range(10):
         for j in range(10):
-            P[j,i] = orthproj(W[j],B[i].T)
+            if projectiontype == "orth":
+                P[j,i] = orthproj(W[j],B[i].T)
+            elif projectiontype  == "nn":
+                P[j,i] = nnproj(C[j],B[i].T,d)
             D[i,j] = dist(P[j,i],B[i].T)
     
     return B, P, D, np.argmin(D, axis=0)
@@ -181,8 +182,9 @@ def plotimgs(imgs, nplot = 4):
 #########################################
 
 #Klassifisering
-k = 1000 #Tal på treningsdatapunkt
-d = 32 #Trunkeringskoeffisient
+k = 2000 #Tal på treningsdatapunkt
+dorth = 32 #Trunkeringskoeffisient
+dnn = 256 #Utval ENMF
 c = 7 #Klasse for test
 r = 58 #Nummer for test
 indecies = np.array([0,1,2,3,4,5,6,7,8,9])
@@ -192,9 +194,12 @@ indecies = np.array([0,1,2,3,4,5,6,7,8,9])
 # plt.semilogy(S)
 # plt.show()
 
-B, P, D, C = classify(k,d)
-display(B, P, D, C, c, r)
-showaccuracy(C,indecies)
+B, Porth, Dorth, Corth = classify(k, dorth, projectiontype="orth")
+B, Pnn, Dnn, Cnn = classify(k, dnn, projectiontype="nn")
+display(B, Porth, Dorth, Corth, c, r)
+showaccuracy(Corth,indecies)
+display(B, Pnn, Dnn, Cnn, c, r)
+showaccuracy(Cnn,indecies)
 
 ###################################
 
