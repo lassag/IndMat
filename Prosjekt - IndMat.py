@@ -36,7 +36,8 @@ def orthproj(W,b):
 def dist(P,b):
     return np.linalg.norm(b-P, axis = 0)
 
-def checkalld(U,S,Vt,b,projectiontype="orth"):
+def checkalld(A,b,projectiontype="orth"):
+    U, S, Vt = np.linalg.svd(A, full_matrices=False)
     D = np.zeros(pixels)
     if projectiontype == "orth":
         for i in range(pixels):
