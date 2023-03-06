@@ -38,8 +38,6 @@ def dist(P,b):
 
 def checkalld(A,b,projectiontype="orth"):
     U, S, Vt = np.linalg.svd(A, full_matrices=False)
-    print(A.shape)
-    print(b.shape)
     if projectiontype == "orth":
         D = np.zeros(b.shape)
         for i in range(pixels):
@@ -92,8 +90,7 @@ def display(B,P,D,C,indecies,c,r):
     for i in range(2):
         for j in range(int(np.ceil(len(indecies)/2))):
             axes[i,j].imshow(P[count,c,:,r].reshape((28,28)), cmap = 'gray')
-            if C[c,r] == indecies[count]:
-                print(f'{indecies[count]}')
+            if indecies[C[c,r]] == indecies[count]:
                 axes[i,j].set_title(f'{indecies[count]}', color = 'red')
             else:
                 axes[i,j].set_title(f'{indecies[count]}')
@@ -101,12 +98,10 @@ def display(B,P,D,C,indecies,c,r):
             count += 1
     plt.show()
     print(f'Skår: \n {D[:,c,r].reshape((2,int(np.ceil(len(indecies)/2))))}')
-    print(f'Gjeting: {C[c,r]}\n Riktig: {indecies[c]}')
+    print(f'Gjeting: {indecies[C[c,r]]}\n Riktig: {indecies[c]}')
     
 def accuracy(C,t=800,indecies=[0,1,2,3,4,5,6,7,8,9]):
-    print(C.shape)
     A = np.tile(indecies,(t,1)).T
-    print(A.shape)
     return np.sum(A == C) / C.size
 
 def showaccuracy(C,t=800,indecies=[0,1,2,3,4,5,6,7,8,9]):
@@ -211,7 +206,7 @@ def plotimgs(imgs, nplot = 4):
 #########################################
 
 #Klassifisering
-k = 500 #Tal på treningsdatapunkt
+k = 1000 #Tal på treningsdatapunkt
 n = 10 #Tal på toarpotensar 
 t = 50 #Tal på testdatapunkt
 dorth = 2**5 #Trunkeringskoeffisient
@@ -229,9 +224,11 @@ indecies = [0,1,2,3,4,5,6,7,8,9]
 
 B = generatetest(t, indecies)
 P, D, C = classify(B, k, dorth, t, indecies, "orth")
-display(B, P, D, C, indecies, c, r)
+# b = np.nonzero(C[c] != c)[0][0]
+# print(b)
+display(B, P, D, C, indecies, c, 0)
 showaccuracy(C,t,indecies)
-# getaccuracies(k,n,t,"orth",maxiter,delta)
+getaccuracies(k,n,t,indecies,"orth",maxiter,delta)
 
 # P, D, C = classify(B, k, dnn, t, "nn", maxiter, delta)
 # display(B, P, D, C, c, r)
