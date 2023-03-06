@@ -123,16 +123,16 @@ def showaccuracy(C,t=800,indecies=[0,1,2,3,4,5,6,7,8,9]):
     plt.show()
     print(f'Total treffsikkerheit: {np.round(np.sum(A)/A.size * 100,1)}%')
 
-def getaccuracies(k, n, t=800, projectiontype="orth",maxiter=75,delta=10e-2):
-    B = generatetest(t)
+def getaccuracies(k, n, t=800, indecies=[0,1,2,3,4,5,6,7,8,9], projectiontype="orth",maxiter=75,delta=10e-2):
+    B = generatetest(t,indecies)
     Q = np.ones(n,dtype = int)*2
     acc = np.zeros(n)
     for i in range(n):
         Q[i] = Q[i]**i
         if projectiontype == "orth":
-            P, D, C = classify(B, k,Q[i],t,"orth")
+            P, D, C = classify(B, k,Q[i],t, indecies,"orth")
         elif projectiontype == "nn":
-            P, D, C = classify(B, k,Q[i],t,"nn",maxiter,delta)
+            P, D, C = classify(B, k,Q[i],t, indecies, "nn",maxiter,delta)
         acc[i] = accuracy(C,t,indecies)
     
     plt.semilogx(Q, acc, base=2, subs=None)
