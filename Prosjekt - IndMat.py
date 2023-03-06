@@ -55,60 +55,64 @@ def checkalld(A,b,projectiontype="orth"):
     plt.semilogy(D)
     plt.show()
     
-def generatetest(t):
-    print(test)
-    return np.swapaxes(np.swapaxes(test[:,:,np.random.choice(test.shape[2], size = t, replace = False)],0,1),1,2)
+def generatetest(t,indecies=[0,1,2,3,4,5,6,7,8,9]):
+    B = np.swapaxes(test[:,:,np.random.choice(test.shape[2], size = t, replace = False)],0,1)
+    return B[indecies]
 
-def getclasses(k,d):
+def getclasses(k,d,indecies=[0,1,2,3,4,5,6,7,8,9]):
     C = np.swapaxes(train[:,:,:k],0,1)
     W = np.zeros((10,pixels,d))
     H = np.zeros((10,d,k))
     for i in range(10):
         W[i], H[i] = WHfact(C[i],d)
-    return C, W, H
+    return C[indecies], W[indecies], H[indecies]
 
-def classify(B, k, d, t=800, projectiontype="orth", maxiter = 75, delta = 10e-2):
-    C, W, H = getclasses(k,d)
-    P = np.zeros((10,10,pixels,t))
-    D = np.zeros((10,10,t))
+def classify(B, k, d, t=800, indecies=[0,1,2,3,4,5,6,7,8,9], projectiontype="orth", maxiter = 75, delta = 10e-2):
+    ind = len(indecies)
+    C, W, H = getclasses(k,d,indecies)
+    P = np.zeros((ind,ind,pixels,t))
+    D = np.zeros((ind,ind,t))
     
-    for i in range(10):
-        for j in range(10):
+    for i in range(ind):
+        for j in range(ind):
             if projectiontype == "orth":
-                P[j,i] = orthproj(W[j],B[i].T)
+                P[j,i] = orthproj(W[j],B[i])
             elif projectiontype  == "nn":
-                P[j,i] = nnproj(C[j],B[i].T,d, maxiter, delta)
-            D[i,j] = dist(P[j,i],B[i].T)
+                P[j,i] = nnproj(C[j],B[i],d, maxiter, delta)
+            D[i,j] = dist(P[j,i],B[i])
     
     return P, D, np.argmin(D, axis=0)
 
-def display(B,P,D,C,c,r):
-    plt.imshow(B[c,r].reshape((28,28)), cmap = 'gray')
+def display(B,P,D,C,indecies,c,r):
+    plt.imshow(B[c,:,r].reshape((28,28)), cmap = 'gray')
     plt.axis('off')
     plt.show()
-    fig, axes = plt.subplots(2,5)
+    fig, axes = plt.subplots(2,int(len(indecies)/2))
     count = 0
     for i in range(2):
-        for j in range(5):
+        for j in range(int(np.ceil(len(indecies)/2))):
             axes[i,j].imshow(P[count,c,:,r].reshape((28,28)), cmap = 'gray')
-            if C[c,r] == count:
-                axes[i,j].set_title(f'{count}', color = 'red')
+            if C[c,r] == indecies[count]:
+                print(f'{indecies[count]}')
+                axes[i,j].set_title(f'{indecies[count]}', color = 'red')
             else:
-                axes[i,j].set_title(f'{count}')
+                axes[i,j].set_title(f'{indecies[count]}')
             axes[i,j].axis('off')
             count += 1
     plt.show()
-    print(f'Skår: \n {D[:,c,r].reshape((2,5))}')
-    print(f'Gjeting: {C[c,r]}\n Riktig: {c}')
+    print(f'Skår: \n {D[:,c,r].reshape((2,int(np.ceil(len(indecies)/2))))}')
+    print(f'Gjeting: {C[c,r]}\n Riktig: {indecies[c]}')
     
 def accuracy(C,t=800,indecies=[0,1,2,3,4,5,6,7,8,9]):
+    print(C.shape)
     A = np.tile(indecies,(t,1)).T
-    return np.sum(A == C[indecies]) / C[indecies].size
+    print(A.shape)
+    return np.sum(A == C) / C.size
 
 def showaccuracy(C,t=800,indecies=[0,1,2,3,4,5,6,7,8,9]):
     A = np.zeros(len(indecies))
     for i in range(len(indecies)):
-        A[i] = accuracy(C,t,i)
+        A[i] = accuracy(C[i],t,i)
     plt.plot(indecies,A)
     plt.scatter(indecies,A)
     plt.xticks(indecies)
@@ -212,7 +216,7 @@ n = 10 #Tal på toarpotensar
 t = 50 #Tal på testdatapunkt
 dorth = 2**5 #Trunkeringskoeffisient
 dnn = 2**9 #Utval ENMF
-c = 6 #Klasse for test
+c = 1 #Klasse for test
 r = 0 #Nummer for test
 maxiter = 75
 delta = 10e-2
@@ -223,12 +227,10 @@ indecies = [0,1,2,3,4,5,6,7,8,9]
 # plt.semilogy(S)
 # plt.show()
 
-B = generatetest(t)
-print(B)
-
-# P, D, C = classify(B, k, dorth, t, "orth")
-# display(B, P, D, C, c, r)
-# showaccuracy(C,t,indecies)
+B = generatetest(t, indecies)
+P, D, C = classify(B, k, dorth, t, indecies, "orth")
+display(B, P, D, C, indecies, c, r)
+showaccuracy(C,t,indecies)
 # getaccuracies(k,n,t,"orth",maxiter,delta)
 
 # P, D, C = classify(B, k, dnn, t, "nn", maxiter, delta)
